@@ -23,10 +23,10 @@ Line Commander::getLine(int ui, int vi, int col, int row, const QVector<Position
     Position u;
     Position v;
     for (int i = 0; i < p.size(); i++) {
-        if (ui = p[i].index) {
+        if (ui == p[i].index) {
             u = p[i];
         }
-        if (vi = p[i].index) {
+        if (vi == p[i].index) {
             v = p[i];
         }
     }
@@ -38,6 +38,47 @@ Line Commander::getLine(int ui, int vi, int col, int row, const QVector<Position
     line.end.x = (v.col + 0.5) * fcol;
     line.end.y = (v.row + 0.5) * frow;
     return line;
+}
+
+QVector<Line> Commander::getDirectedLine(int ui, int vi, int col, int row, const QVector<Position> &p)
+{
+    Position u;
+    Position v;
+    for (int i = 0; i < p.size(); i++) {
+        if (ui == p[i].index) {
+            u = p[i];
+        }
+        if (vi == p[i].index) {
+            v = p[i];
+        }
+    }
+    QVector<Line> lines;
+    Line line;
+
+    //basic line
+    double fcol = 1.0 / col;
+    double frow = 1.0 / row;
+    line.start.x = (u.col + 0.5) * fcol;
+    line.start.y = (u.row + 0.5) * frow;
+    line.end.x = (v.col + 0.5) * fcol;
+    line.end.y = (v.row + 0.5) * frow;
+    lines.append(line);
+
+    //arrow
+    double mx = (line.start.x + line.end.x) / 2;
+    double my = (line.start.y + line.end.y) / 2;
+    double d = (line.start.x - line.end.x) / 10;
+    double m = (line.end.y - line.end.x) / 10;
+    line.start.x = mx;
+    line.start.y = my;
+    line.end.x = mx + m;
+    line.end.y = my + d;
+    lines.append(line);
+    line.end.x = mx - m;
+    line.end.y = my - d;
+    lines.append(line);
+
+    return lines;
 }
 
 /**
@@ -104,9 +145,16 @@ QString Commander::command(const QString &cmd)
 
     //update dm
     DataMap::Lines lines;
-    for (int i = 0; i < e.size(); i++) {
-        Line line = getLine(e[i].u, e[i].v, col, row, p);
-        lines.append(line);
+    if (!directed) {
+        for (int i = 0; i < e.size(); i++) {
+            Line line = getLine(e[i].u, e[i].v, col, row, p);
+            lines.append(line);
+        }
+    } else {
+        for (int i = 0; i < e.size(); i++) {
+            QVector<Line> line = this->getDirectedLine(e[i].u, e[i].v, col, row, p);
+            lines += line;
+        }
     }
     dm->reset(lines, col, row, directed, showgrid);
 

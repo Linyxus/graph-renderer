@@ -20,6 +20,7 @@ class DataMap : public QObject
 public:
     typedef QVector<Line> Lines;
     DataMap(QObject *parent = 0);
+    Q_INVOKABLE int getLineCnt() const;
     Q_INVOKABLE double getStartX(int i) const;
     Q_INVOKABLE double getStartY(int i) const;
     Q_INVOKABLE double getEndX(int i) const;

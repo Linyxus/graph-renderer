@@ -32,6 +32,7 @@ private:
     QList<QObject *> data;
     DataMap* dm;
     Line getLine(int ui, int vi, int col, int row, const QVector<Position> &p);
+    QVector<Line> getDirectedLine(int ui, int vi, int col, int row, const QVector<Position> &p);
 };
 
 #endif // MAP_H

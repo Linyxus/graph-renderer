@@ -6,6 +6,11 @@ DataMap::DataMap(QObject *parent)
 
 }
 
+int DataMap::getLineCnt() const
+{
+    return lines.size();
+}
+
 double DataMap::getStartX(int i) const
 {
     return lines[i].start.x;
@@ -23,7 +28,7 @@ double DataMap::getEndX(int i) const
 
 double DataMap::getEndY(int i) const
 {
-    return lines[i].end.x;
+    return lines[i].end.y;
 }
 
 int DataMap::getCol() const

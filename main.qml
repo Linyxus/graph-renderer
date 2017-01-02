@@ -20,6 +20,8 @@ Window {
                     console.log("DataMap changed!")
                     renderView.cols = dataMap.getCol()
                     renderView.rows = dataMap.getRow()
+                    renderView.showGrid = dataMap.getShowGrid()
+                    cvs.update()
                     cvs.requestPaint();
                 }
             }
@@ -30,6 +32,7 @@ Window {
             height: root.height * 0.7
             property int cols: 10
             property int rows: 10
+            property bool showGrid: true
             Rectangle {
                 id: renderTitle
                 anchors.left: parent.left
@@ -57,15 +60,18 @@ Window {
 
                     onPaint: {
                         var ctx = getContext("2d")
-                        ctx.lineWidth = 2
-                        ctx.strokeStyle = "red"
+                        ctx.clearRect(0, 0, cvs.width, cvs.height)
+                        ctx.lineWidth = 1
+                        ctx.strokeStyle = "#4f9cf3"
                         ctx.beginPath()
-                        ctx.moveTo(0, 0)
-                        ctx.lineTo(33, 100)
-                        ctx.moveTo(33, 98)
-                        ctx.lineTo(33, 90)
-                        ctx.moveTo(33, 100)
-                        ctx.lineTo(23, 100)
+                        for (var ii = 0; ii < dataMap.getLineCnt(); ii++) {
+                            var sx = dataMap.getStartX(ii) * renderArea.width
+                            var sy = dataMap.getStartY(ii) * renderArea.height
+                            var ex = dataMap.getEndX(ii) * renderArea.width
+                            var ey = dataMap.getEndY(ii) * renderArea.height
+                            ctx.moveTo(sx, sy)
+                            ctx.lineTo(ex, ey)
+                        }
                         ctx.stroke()
                     }
                 }
@@ -79,7 +85,7 @@ Window {
                               width: renderArea.width / renderView.cols
                               height: renderArea.height / renderView.rows
                               color: "transparent"
-                              border.width: 1
+                              border.width: renderView.showGrid ? 1 : 0
                               border.color: "#6897d9"
 
                               Rectangle {
