@@ -51,12 +51,33 @@ bool DataMap::getShowGrid() const
     return this->sg;
 }
 
-void DataMap::reset(const Lines &newLines, int newCol, int newRow, bool d, bool sg)
+void DataMap::reset(const Lines &newLines, const Labels &newLabels, int newCol, int newRow, bool d, bool sg)
 {
     this->lines = newLines;
+    this->labels = newLabels;
     this->col = newCol;
     this->row = newRow;
     this->d = d;
     this->sg = sg;
     emit mapChanged();
+}
+
+double DataMap::getLabelX(int i) const
+{
+    return labels[i].pos.x;
+}
+
+double DataMap::getLabelY(int i) const
+{
+    return labels[i].pos.y;
+}
+
+QString DataMap::getLabelText(int i) const
+{
+    return labels[i].text;
+}
+
+int DataMap::getLabelCnt() const
+{
+    return labels.size();
 }

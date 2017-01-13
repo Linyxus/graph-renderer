@@ -33,6 +33,7 @@ private:
     DataMap* dm;
     Line getLine(int ui, int vi, int col, int row, const QVector<Position> &p);
     QVector<Line> getDirectedLine(int ui, int vi, int col, int row, const QVector<Position> &p);
+    Label getLabel(int ui, int vi, QString text, int col, int row, const QVector<Position> &p);
 };
 
 #endif // MAP_H

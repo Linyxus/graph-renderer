@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>CircleButton.qml</file>
+        <file>AnimationCircle.qml</file>
+        <file>AnimationLabel.qml</file>
     </qresource>
 </RCC>

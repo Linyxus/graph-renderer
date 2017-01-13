@@ -2,6 +2,8 @@
 #include <sstream>
 #include <algorithm>
 
+const double scaleFac = 40.0;
+
 Commander::Commander(QObject *parent)
     : QObject(parent)
 {
@@ -16,6 +18,31 @@ const QList<QObject *> &Commander::getData() const
 DataMap *Commander::getDataMap()
 {
     return this->dm;
+}
+
+Label Commander::getLabel(int ui, int vi, QString text, int col, int row, const QVector<Position> &p)
+{
+    Position u;
+    Position v;
+    for (int i = 0; i < p.size(); i++) {
+        if (ui == p[i].index) {
+            u = p[i];
+        }
+        if (vi == p[i].index) {
+            v = p[i];
+        }
+    }
+
+    double fcol = 1.0 / col;
+    double frow = 1.0 / row;
+    Label label;
+    double mx = ((u.col + 0.5) * fcol + (v.col + 0.5) * fcol) / 2;
+    double my = ((u.row + 0.5) * frow + (v.row + 0.5) * frow) / 2;
+    label.pos.x = mx;
+    label.pos.y = my;
+    label.text = text;
+
+    return label;
 }
 
 Line Commander::getLine(int ui, int vi, int col, int row, const QVector<Position> &p)
@@ -67,10 +94,18 @@ QVector<Line> Commander::getDirectedLine(int ui, int vi, int col, int row, const
     //arrow
     double mx = (line.start.x + line.end.x) / 2;
     double my = (line.start.y + line.end.y) / 2;
-    double d = (line.start.x - line.end.x) / 10;
-    double m = (line.end.y - line.end.x) / 10;
+    double d = (line.start.x - line.end.x) / scaleFac;
+    double m = (line.end.y - line.start.y) / scaleFac;
     line.start.x = mx;
     line.start.y = my;
+    line.end.x = mx + m;
+    line.end.y = my + d;
+    lines.append(line);
+    line.end.x = mx - m;
+    line.end.y = my - d;
+    lines.append(line);
+    line.start.x = mx - d * 2;
+    line.start.y = my + m * 2;
     line.end.x = mx + m;
     line.end.y = my + d;
     lines.append(line);
@@ -91,6 +126,10 @@ QVector<Line> Commander::getDirectedLine(int ui, int vi, int col, int row, const
 
 QString Commander::command(const QString &cmd)
 {
+    //clear previous before render
+    data.clear();
+    emit dataChanged();
+
     std::stringstream ss(cmd.toStdString());
     std::string str;
     QVector<Position> p;
@@ -101,10 +140,10 @@ QString Commander::command(const QString &cmd)
     int col;
     int row;
     while (ss >> str) {
-        if (str == "grid") {
+        if (str == "grid" || str == "g") {
             hasGrid = true;
             ss >> col >> row;
-        } else if (str == "setdirected") {
+        } else if (str == "setdirected" || str == "sd") {
             std::string b;
             ss >> b;
             if (b == "true")
@@ -113,17 +152,17 @@ QString Commander::command(const QString &cmd)
                 directed = false;
             else
                 return "Unexcepted arguments (true/false)";
-        } else if (str == "vertax") {
+        } else if (str == "vertax" || str == "v") {
             Position pos;
             ss >> pos.col >> pos.row >> pos.index;
             p.append(pos);
-        } else if (str == "edge") {
+        } else if (str == "edge" || str == "e") {
             Edge ed;
             std::string s;
             ss >> ed.u >> ed.v >> s;
             ed.w = QString::fromStdString(s);
             e.append(ed);
-        } else if (str == "showgrid") {
+        } else if (str == "showgrid" || str == "sg") {
             std::string b;
             ss >> b;
             if (b == "true")
@@ -144,6 +183,7 @@ QString Commander::command(const QString &cmd)
     }
 
     //update dm
+    //lines
     DataMap::Lines lines;
     if (!directed) {
         for (int i = 0; i < e.size(); i++) {
@@ -156,7 +196,14 @@ QString Commander::command(const QString &cmd)
             lines += line;
         }
     }
-    dm->reset(lines, col, row, directed, showgrid);
+    //labels
+    DataMap::Labels labels;
+    for (int i = 0; i < e.size(); i++) {
+        Label label = getLabel(e[i].u, e[i].v, e[i].w, col, row, p);
+        labels.append(label);
+    }
+
+    dm->reset(lines, labels, col, row, directed, showgrid);
 
     //update data
     data.clear();
