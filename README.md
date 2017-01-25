@@ -19,7 +19,7 @@ Like this:
 
 ![f_5187.png](http://linfile.xyz/data/vip_data/f_5187.png)
 
-**So `grid` is recommend to be your first command anyway.**
+**So `grid` is recommended to be your first command anyway.**
 
 ### Vertax
 ```
@@ -27,7 +27,7 @@ vertax row column index
 ```
 or replace `vertax` with `v`.
 
-This command will put a vertax.
+This command will add a vertax whose position is given in the command.
 
 ![f_8593.png](http://linfile.xyz/data/vip_data/f_8593.png)
 
@@ -58,7 +58,7 @@ showgrid {true|false}
 or replace `showgrid` with `sg`
 
 This command tell the renderer whether to draw the blocks.
-**And the default value is false.**
+**And the default value is true.**
 
 *Set the value false for depolyment.*
 
